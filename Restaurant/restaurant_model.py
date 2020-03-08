@@ -1,13 +1,12 @@
-from login import db, ma
-from werkzeug.security import generate_password_hash, check_password_hash
-from marshmallow import INCLUDE, fields
-from ..Authentication.auth_model import User
+from app import db, ma
+from marshmallow import INCLUDE, fields,EXCLUDE
+from Authentication.auth_model import User
 
 class RestaurantModel(db.Model):
     __tablename__ = 'restaurants'
 
     Id = db.Column(db.Integer,
-                   primary_key=True)
+                   primary_key=True,autoincrement=True)
     Name = db.Column(db.String(100),
                      nullable=False,
                      unique=True)
@@ -25,9 +24,15 @@ class RestaurantModel(db.Model):
         self.Location = data.get('Location')
         self.Contact = data.get('Contact')
 
-    def create_restaurant(self) -> None:
+    def create_restaurant(self) -> "RestaurantModel":
         db.session.add(self)
         db.session.commit()
+        return self
+
+    @classmethod
+    def check_by_name(cls,name:str)->str:
+        rest_obj = RestaurantModel.query.filter(RestaurantModel.Name==name).first()
+        return rest_obj
 
     def delete_restaurant(self) -> None:
         db.session.remove(self)
@@ -46,11 +51,15 @@ class RestaurantModel(db.Model):
 class Restaurant_schema(ma.SQLAlchemySchema):
     class Meta:
         model=RestaurantModel
-        Unkown= INCLUDE
+
+
     Id = ma.auto_field(dump_only= True)
     Name = ma.auto_field()
     Location = ma.auto_field()
     Contact = ma.auto_field()
+    BookingCharges = fields.Raw()
+    TableType = fields.Raw()
+    TableCount = fields.Raw()
 
 
 class TableModel(db.Model):
@@ -62,6 +71,21 @@ class TableModel(db.Model):
     TableType = db.Column(db.String(100),
                      nullable=False,
                      unique=True)
+
+    def __init__(self,data):
+        self.Id = data.get("Id"),
+        self.TableType = data.get("TableType")
+
+    @classmethod
+    def insert_tableType(cls,obj):
+        db.session.add(obj)
+        db.session.commit()
+        return obj
+
+    @classmethod
+    def get_by_type(cls,table_type):
+        obj = TableModel.query.filter(TableModel.TableType==table_type).first()
+        return obj.Id
 
 
 class TabelSchema(ma.SQLAlchemySchema):
@@ -76,11 +100,11 @@ class RestTableMapModel(db.Model):
     __tablename__ = "restauranttabletypemapping"
 
     Id = db.Column(db.Integer,
-                   primary_key=True)
+                   primary_key=True,)
     RestaurantId = db.Column(db.Integer(),
-                     db.ForeignKey('restaurants.Id'))
+                     db.ForeignKey('restaurants.Id'),nullable=False)
     TableTypeId = db.Column(db.Integer(),
-                             db.ForeignKey('tabletypes.Id'))
+                             db.ForeignKey('tabletypes.Id'),nullable=False)
     TableCount = db.Column(db.Integer(),
                            nullable=False,
                            unique=False)
@@ -91,6 +115,12 @@ class RestTableMapModel(db.Model):
         self.RestaurantId = data.get("RestaurantId")
         self.TableTypeId = data.get("TableTypeId")
         self.BookingCharges= data.get("BookingCharges")
+        self.TableCount = data.get("TableCount")
+
+    def create_mapping(self):
+        db.session.add(self)
+        db.session.commit()
+        return self
 
     def update_table_count(self):
         self.TableCount -= 1
@@ -156,6 +186,8 @@ class RestTableMapModel(db.Model):
 class RestTableMapSchema(ma.SQLAlchemySchema):
     class Meta:
         model=RestTableMapModel
+        unknown = EXCLUDE
+
     Id = ma.auto_field(dump_only= True)
     RestaurantId = ma.auto_field()
     TableTypeId = ma.auto_field()
@@ -168,10 +200,10 @@ class Bookings(db.Model):
 
     Id = db.Column(db.Integer,
                    primary_key=True,autoincrement=True)
-    MapId = db.Column(db.Integer())
-    UserId = db.Column(db.Integer())
-    PaymentStatus = db.Column(db.Enum('PAID', 'NOTPAID'))
-    BookingStatus = db.Column(db.Enum('BOOKED','CHECKEDIN','CANCELLED'))
+    MapId = db.Column(db.Integer(),db.ForeignKey('restauranttabletypemapping.Id'))
+    UserId = db.Column(db.Integer(),db.ForeignKey('flasklogin-users.id'))
+    PaymentStatus = db.Column(db.Enum('PAID', 'NOTPAID'),nullable=True, unique=False)
+    BookingStatus = db.Column(db.Enum('BOOKED','CHECKEDIN','CANCELLED'),nullable=True, unique=False)
 
     def __init__(self, MapId, UserId, paymentStatus="NOTPAID", bookingStatus="BOOKED"):
         self.MapId = MapId

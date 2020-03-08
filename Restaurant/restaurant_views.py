@@ -1,18 +1,11 @@
-from .restaurant_model import RestaurantModel, RestTableMapModel,Bookings, Booking_schema
+from .restaurant_model import RestaurantModel, RestTableMapModel,Bookings, Booking_schema,TableModel
 from .restaurant_model import Restaurant_schema, TabelSchema, RestTableMapSchema
 from flask import request
 from flask_restx import Resource
 from . import restaurant_namespace
-from login.utils import field_check
+from utils import field_check
 from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    fresh_jwt_required,
-    jwt_required,
-    jwt_refresh_token_required,
-    get_jwt_identity,
-    get_raw_jwt,
-jwt_optional
+    get_jwt_identity
 )
 
 """restaurant_bp = Blueprint("restaurant_bp",__name__)
@@ -44,10 +37,64 @@ class Show_Restaurants(Resource):
         return out, 200
 
 
+class CreateTableTypes(Resource):
+
+    @restaurant_namespace.expect(restaurant_dto.tabletype_create_request)
+    @restaurant_namespace.doc(
+        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    def post(self):
+        """
+        Step2: Feed in the table type each restaurant are expected to have like 2,4,8,12 seater"""
+        req_data = request.get_json()
+        print("req", req_data)
+        loaded_data = table_schema.load(req_data)
+        obj = TableModel(loaded_data)
+        obj = obj.insert_tableType(obj)
+        dumped_data = table_schema.dump(obj)
+        return {"message":"CREATED","TableType":dumped_data},200
+
+
+class CreateRestaurant(Resource):
+
+    @restaurant_namespace.expect(restaurant_dto.restaurant_create_request)
+    @restaurant_namespace.doc(
+        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    def post(self):
+        """
+        Step3: Feed in the new restuarants to be populated and booked by people. Taken care from admin user"""
+        req_data = request.get_json()
+        rest_obj = RestaurantModel.check_by_name(req_data["Name"])
+        if rest_obj:
+            return {"message": "Restaurant already exist"}, 424
+        loaded_data = rest_schema.load(req_data,partial=True)
+        rest_obj = RestaurantModel(loaded_data)
+        rest_obj = rest_obj.create_restaurant()
+        dumped_data = rest_table_schema.dump(rest_obj)
+        return {"message": "CREATED", "Restaurant": dumped_data}, 200
+
+
+class Table_Rest_Mapping(Resource):
+    @restaurant_namespace.expect(restaurant_dto.rest_table_map_request)
+    @restaurant_namespace.doc(
+        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    def post(self):
+        """
+        Step3: Feed in the new restuarants to be populated and booked by people. Taken care from admin user"""
+        req_data = request.get_json()
+        req_data["TableTypeId"] = TableModel.get_by_type(req_data["TableType"])
+        #del req_data["TableType"]
+        loaded_data = rest_table_schema.load(req_data, partial=True)
+        rest_tab_obj = RestTableMapModel(loaded_data)
+        rest_tab_obj = rest_tab_obj.create_mapping()
+        dumped_data = rest_table_schema.dump(rest_tab_obj)
+        return {"message": "CREATED", "Restaurant": dumped_data}, 200
+
+
+
 class Show_Tables(Resource):
     def get(self,restaurant_name):
         """
-        Step2: Shows the type and count of table available with respect to the input restaurant name
+        Step4: Shows the type and count of table available with respect to the input restaurant name
         :param restaurant_name:
         :return: Table details
         """
@@ -65,7 +112,7 @@ class Book_Table(Resource):
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
     def post(self):
         """
-        Step3: Book the table needed and the count of availabe restaurant reduces by 1, if the count of table is 0,
+        Step5: Book the table needed and the count of availabe restaurant reduces by 1, if the count of table is 0,
         then "Tables are not available" is populated.
 
         """
@@ -86,7 +133,7 @@ class OrderHistory(Resource):
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
     def get(self):
         """
-        Step4: Gives overall order history of a particular user"""
+        Step6: Gives overall order history of a particular user"""
         userId = get_jwt_identity()
         booking_obj = Bookings.get_booking_by_userId(userId=userId)
         dumped_data = book_schema.dump(booking_obj, many=True)
@@ -96,10 +143,10 @@ class OrderHistory(Resource):
 class Bill(Resource):
     @restaurant_namespace.doc(
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
-    @restaurant_namespace.response(200,'OK',restaurant_dto.bill_response)
+    @restaurant_namespace.response(200,'OK', restaurant_dto.bill_response)
     def get(self):
         """
-        Step5: Gives the bill amount of unpaid bookings together
+        Step7: Gives the bill amount of unpaid bookings together
         :return:
         """
         userId = get_jwt_identity()
@@ -117,7 +164,7 @@ class CheckIn(Resource):
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
     def get(self,bookingId):
         """
-        Step6: Checking in of the booked order with respect to the input booking Id provided.
+        Step8: Checking in of the booked order with respect to the input booking Id provided.
         :param bookingId:
         """
         Bookings.change_status(bookingId,"CHECKEDIN")
@@ -131,7 +178,7 @@ class CancelBooking(Resource):
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
     def post(self,bookingId):
         """
-        Step7: Cancel a booking which is booked priorly with respect to the input Booking Id provided
+        Step9: Cancel a booking which is booked priorly with respect to the input Booking Id provided
         :param bookingId:
         :return:
         """

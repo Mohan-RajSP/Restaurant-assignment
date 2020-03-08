@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="95a7a5e4-714d-469e-acdc-fbcb9b693fc5" name="Default Changelist" comment="" />
+    <list default="true" id="95a7a5e4-714d-469e-acdc-fbcb9b693fc5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/strings/en-gb.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Authentication/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Authentication/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Authentication/auth_dto.py" beforeDir="false" afterPath="$PROJECT_DIR$/Authentication/auth_dto.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Authentication/auth_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Authentication/auth_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Authentication/auth_view.py" beforeDir="false" afterPath="$PROJECT_DIR$/Authentication/auth_view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Restaurant/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Restaurant/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Restaurant/restaurant_dto.py" beforeDir="false" afterPath="$PROJECT_DIR$/Restaurant/restaurant_dto.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Restaurant/restaurant_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/Restaurant/restaurant_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/Restaurant/restaurant_views.py" beforeDir="false" afterPath="$PROJECT_DIR$/Restaurant/restaurant_views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/assets.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/forms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/strings/en-gb.json" beforeDir="false" afterPath="$PROJECT_DIR$/manage.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/strings/error_constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/strings/error_constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/login/utils/supporting_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/supporting_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/wsgi.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,22 +36,26 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1YbV3VewmkJ9u9XcgIUGiCplihM" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\Restaurant" />
-      <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login" />
-      <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\static\dist" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\Rest-0-Cafe" />
       <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login" />
       <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\Authentication" />
       <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\static\src\js" />
       <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\static\dist\img" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\Restaurant" />
+      <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login" />
       <recent name="C:\Users\mohan.r.paramasivam\Documents\FLask-tutorial\flask-login\login\static\dist" />
     </key>
   </component>
@@ -58,5 +83,18 @@
       <updated>1583211081455</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

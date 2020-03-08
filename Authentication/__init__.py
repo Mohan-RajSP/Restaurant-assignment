@@ -1,6 +1,6 @@
-from login.utils import custom_log
-from flask import Blueprint, request
-from flask_restx import Api, Resource,fields
+from utils import custom_log
+from flask import Blueprint
+from flask_restx import Api
 from flask_dance.contrib.github import make_github_blueprint
 from flask import current_app as app
 
@@ -10,8 +10,9 @@ auth_bp = Blueprint('auth_bp', __name__)
 
 github_blueprint = make_github_blueprint(client_id=app.config['GITLAB_OAUTH_CLIENT_ID'],
                                         client_secret=app.config['GITLAB_OAUTH_CLIENT_SECRET'],
-                                         redirect_url ='http://localhost:5000/githubLogin/login',
                                          scope=['openid', 'email', 'profile'],)
+                                         #redirect_url ='http://localhost:5000/githubLogin/login',
+
 
 authorizations = {
     'apikey': {
@@ -46,7 +47,7 @@ auth_api.add_resource(ResetPassword,"/resetpassword")
 auth_api.add_resource(TokenRefresh,"/nonfreshtoken")
 auth_api.add_resource(UserLogout,"/logout")
 
-github_api.add_resource(GitHubAuthorize,"/login")
+github_api.add_resource(GitHubAuthorize,"/Github")
 github_api.add_resource(Gitdummy,"/login1")
 
 

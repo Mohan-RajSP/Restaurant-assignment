@@ -8,21 +8,33 @@ from flask_jwt_extended import (
     jwt_required,
     jwt_refresh_token_required,
     get_jwt_identity,
-    get_raw_jwt,jwt_optional
+    get_raw_jwt
 )
-from login.utils import custom_response,field_check
+from utils import custom_response,field_check
 from .auth_model import User_schema, User
 from . import logger, auth_namespace
-from login.strings.error_constants import Errors
-from flask_restx import Resource, Api
-from flask import Blueprint
-from flask import current_app as app
-from flask_dance.contrib.github import make_github_blueprint, github
-from login import db, jwt
+from strings.error_constants import Errors
+from flask_restx import Resource
+from flask_dance.contrib.github import github
+from app import db, jwt
 from .auth_dto import signin_baseresponse, signin_request,login_request,login_response, non_refresh_token_response
+from flask_dance.consumer import oauth_authorized
 
 blacklist = set()
 user_schema = User_schema()
+
+
+
+@oauth_authorized.connect
+def redirect_to_next_url(blueprint, token):
+    # set OAuth token in the token storage backend
+    print("redirecting")
+    blueprint.token = token
+    # retrieve `next_url` from Flask's session cookie
+    redirect_url ='http://localhost:5000/githubLogin/login'
+    # redirect the user to `next_url`
+    return redirect('githubLogin.login')
+
 
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
@@ -45,6 +57,7 @@ class UserRegister(Resource):
     @auth_namespace.expect(signin_request)
     @auth_namespace.response(200,"OK",signin_baseresponse)
     def post(self):
+
         try:
             req_data = request.get_json()
             loaded_data = user_schema.load(req_data, session=db.session)
@@ -211,7 +224,6 @@ class GitHubAuthorize(Resource):
 
 
 class Gitdummy(Resource):
-    @jwt_required
     def get(self):
         return "Hello"
 
