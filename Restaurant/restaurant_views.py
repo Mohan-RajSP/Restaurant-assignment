@@ -5,7 +5,7 @@ from flask_restx import Resource
 from . import restaurant_namespace
 from utils import field_check
 from flask_jwt_extended import (
-    get_jwt_identity
+    get_jwt_identity, jwt_required,jwt_optional,fresh_jwt_required
 )
 
 """restaurant_bp = Blueprint("restaurant_bp",__name__)
@@ -21,9 +21,11 @@ from . import restaurant_dto
 
 class Show_Restaurants(Resource):
 
-    @restaurant_namespace.doc(
-        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
     @restaurant_namespace.response(200, 'OK', restaurant_dto.allRestaurant_response)
+    @jwt_required
     def get(self):
         """
         Step1: Shows all the restaurants in the table "restaurants"
@@ -40,8 +42,10 @@ class Show_Restaurants(Resource):
 class CreateTableTypes(Resource):
 
     @restaurant_namespace.expect(restaurant_dto.tabletype_create_request)
-    @restaurant_namespace.doc(
-        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def post(self):
         """
         Step2: Feed in the table type each restaurant are expected to have like 2,4,8,12 seater"""
@@ -57,8 +61,10 @@ class CreateTableTypes(Resource):
 class CreateRestaurant(Resource):
 
     @restaurant_namespace.expect(restaurant_dto.restaurant_create_request)
-    @restaurant_namespace.doc(
-        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def post(self):
         """
         Step3: Feed in the new restuarants to be populated and booked by people. Taken care from admin user"""
@@ -75,8 +81,10 @@ class CreateRestaurant(Resource):
 
 class Table_Rest_Mapping(Resource):
     @restaurant_namespace.expect(restaurant_dto.rest_table_map_request)
-    @restaurant_namespace.doc(
-        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def post(self):
         """
         Step3: Feed in the new restuarants to be populated and booked by people. Taken care from admin user"""
@@ -92,6 +100,10 @@ class Table_Rest_Mapping(Resource):
 
 
 class Show_Tables(Resource):
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def get(self,restaurant_name):
         """
         Step4: Shows the type and count of table available with respect to the input restaurant name
@@ -108,8 +120,9 @@ class Show_Tables(Resource):
 class Book_Table(Resource):
 
     @restaurant_namespace.expect(restaurant_dto.book_table_request)
-    @restaurant_namespace.doc(
+    @restaurant_namespace.doc(security='apikey',
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @jwt_required
     def post(self):
         """
         Step5: Book the table needed and the count of availabe restaurant reduces by 1, if the count of table is 0,
@@ -129,8 +142,10 @@ class Book_Table(Resource):
 class OrderHistory(Resource):
 
     @restaurant_namespace.expect(restaurant_dto.order_history_response)
-    @restaurant_namespace.doc(
-        responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def get(self):
         """
         Step6: Gives overall order history of a particular user"""
@@ -143,7 +158,10 @@ class OrderHistory(Resource):
 class Bill(Resource):
     @restaurant_namespace.doc(
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
-    @restaurant_namespace.response(200,'OK', restaurant_dto.bill_response)
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def get(self):
         """
         Step7: Gives the bill amount of unpaid bookings together
@@ -162,6 +180,10 @@ class Bill(Resource):
 class CheckIn(Resource):
     @restaurant_namespace.doc(
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def get(self,bookingId):
         """
         Step8: Checking in of the booked order with respect to the input booking Id provided.
@@ -176,6 +198,11 @@ class CheckIn(Resource):
 class CancelBooking(Resource):
     restaurant_namespace.doc(
         responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY', 500: 'SERVER_ERROR'})
+
+    @restaurant_namespace.doc(security='apikey',
+                              responses={404: 'NOT FOUND', 412: 'INVALID INPUT', 424: 'FAILED DEPENDENCY',
+                                         500: 'SERVER_ERROR'})
+    @jwt_required
     def post(self,bookingId):
         """
         Step9: Cancel a booking which is booked priorly with respect to the input Booking Id provided

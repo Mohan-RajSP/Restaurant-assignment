@@ -17,6 +17,7 @@ def create_app():
     app.config.from_object('config.Config')
 
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = '1'
 
     # Initialize Plugins
     db.init_app(app)
@@ -25,11 +26,12 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        from Authentication import auth_bp, github_blueprint
+        from Authentication import auth_bp
+        from Authentication.auth_view import github_blueprint
         from Restaurant import restaurant_bp
 
         app.register_blueprint(auth_bp, url_prefix="/auth")
-        app.register_blueprint(github_blueprint, url_prefix="/gitH")
+        app.register_blueprint(github_blueprint, url_prefix="/githubLogin")
         app.register_blueprint(restaurant_bp, url_prefix="/restaurant")
 
         @app.before_first_request

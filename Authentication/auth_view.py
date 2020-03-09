@@ -14,26 +14,22 @@ from utils import custom_response,field_check
 from .auth_model import User_schema, User
 from . import logger, auth_namespace
 from strings.error_constants import Errors
-from flask_restx import Resource
+from flask_restx import Resource, Api
 from flask_dance.contrib.github import github
 from app import db, jwt
 from .auth_dto import signin_baseresponse, signin_request,login_request,login_response, non_refresh_token_response
-from flask_dance.consumer import oauth_authorized
+from flask_dance.contrib.github import make_github_blueprint
+from flask import current_app as app
+
+
+github_blueprint = make_github_blueprint(client_id=app.config['GITLAB_OAUTH_CLIENT_ID'],
+                                        client_secret=app.config['GITLAB_OAUTH_CLIENT_SECRET'],
+                                         scope=['openid', 'email', 'profile'],
+                                         redirect_url ='http://localhost:5000/githubLogin/login')
+github_api = Api(github_blueprint)
 
 blacklist = set()
 user_schema = User_schema()
-
-
-
-@oauth_authorized.connect
-def redirect_to_next_url(blueprint, token):
-    # set OAuth token in the token storage backend
-    print("redirecting")
-    blueprint.token = token
-    # retrieve `next_url` from Flask's session cookie
-    redirect_url ='http://localhost:5000/githubLogin/login'
-    # redirect the user to `next_url`
-    return redirect('githubLogin.login')
 
 
 @jwt.token_in_blacklist_loader
@@ -54,34 +50,24 @@ def user_identity_lookup(user):
 
 class UserRegister(Resource):
 
+    """Step1: Registers the user and add record to user table"""
+
     @auth_namespace.expect(signin_request)
     @auth_namespace.response(200,"OK",signin_baseresponse)
     def post(self):
 
-        try:
-            req_data = request.get_json()
-            loaded_data = user_schema.load(req_data, session=db.session)
-            existing_user = User.query.filter_by(email=loaded_data["email"]).first()
+        req_data = request.get_json()
+        loaded_data = user_schema.load(req_data, session=db.session)
+        existing_user = User.query.filter_by(email=loaded_data["email"]).first()
 
-            if existing_user:
-                out = {"message": "User already exist"}
-                return out, 400
-            user = User(loaded_data)
-            user.save_user()
-            dumped_data = user_schema.dump(user)
-            out = {"message": "CREATED", "user": dumped_data}
-            return out, 200
-
-        except ValidationError as vError:
-            logger.exception("The exception is {}".format(vError.messages))
-            out = {"message": vError.messages}
+        if existing_user:
+            out = {"message": "User already exist"}
             return out, 400
-
-        except Exception as Other_err:
-            db.session.rollback()
-            logger.exception("The exception is {}".format(Other_err))
-            out = {"message": Other_err.args}
-            return out, 500
+        user = User(loaded_data)
+        user.save_user()
+        dumped_data = user_schema.dump(user)
+        out = {"message": "CREATED", "user": dumped_data}
+        return out, 200
 
 
 class UserLogin(Resource):
@@ -89,31 +75,25 @@ class UserLogin(Resource):
     @auth_namespace.expect(login_request)
     @auth_namespace.response(200,"OK",login_response)
     def post(self):
-        try:
-            user_data = request.get_json()
-            fields = ("email","password")
-            field_check(fields, user_data)
-            user = User.find_by_mail_id(user_data["email"])
-            if user:
-                if not user.check_password(None) :
-                    if user and user.check_password(user_data["password"]):
-                        access_token = create_access_token(identity=user.id, fresh=True)
-                        refresh_token = create_refresh_token(identity=user.id)
-                        return {"access_token": access_token, "refresh_token": refresh_token}, 200
-                    else:
-                        return {"message": Errors.user_invalid_credentials}, 401
-                else:
+        """Step2: Login with username and password"""
+        user_data = request.get_json()
+        fields = ("email","password")
+        field_check(fields, user_data)
+        user = User.find_by_mail_id(user_data["email"])
+        if user:
+            if not user.check_password(None) :
+                if user and user.check_password(user_data["password"]):
                     access_token = create_access_token(identity=user.id, fresh=True)
-                    refresh_token = create_refresh_token(user)
+                    refresh_token = create_refresh_token(identity=user.id)
                     return {"access_token": access_token, "refresh_token": refresh_token}, 200
+                else:
+                    return {"message": Errors.user_invalid_credentials}, 401
             else:
-                return{"message":Errors.user_not_found}, 400
-
-        except Exception as Other_err:
-            db.session.rollback()
-            logger.exception("The exception is {}".format(Other_err))
-            out = {"message": Other_err.args}
-            return out, 500
+                access_token = create_access_token(identity=user.id, fresh=True)
+                refresh_token = create_refresh_token(user.id)
+                return {"access_token": access_token, "refresh_token": refresh_token}, 200
+        else:
+            return{"message":Errors.user_not_found}, 400
 
 
 class TokenRefresh(Resource):
