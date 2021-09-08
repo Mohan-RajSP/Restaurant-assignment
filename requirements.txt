@@ -11,7 +11,7 @@ Flask-Dance==3.0.0
 Flask-JWT-Extended==3.24.1
 flask-marshmallow==0.11.0
 Flask-RESTful==0.3.8
-flask-restx==0.1.1
+flask-restx==0.5.1
 Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.3
 idna==2.9
